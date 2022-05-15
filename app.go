@@ -2,26 +2,68 @@ package main
 
 import "fmt"
 
-type queue []string
-
-func (q *queue) enqueue(name string) {
-	*q = append(*q, name)
+type node struct {
+	data string
+	next *node
 }
-func (q *queue) dequeue() string {
-	data := (*q)[0]
-	*q = (*q)[1:]
-	return data
+
+type myQueueLinkedList struct {
+	size int
+	head *node
+}
+
+func (s *myQueueLinkedList) enqueue(name string) {
+	newNode := &node{
+		data: name,
+	}
+	if s.head == nil {
+		s.head = newNode
+	} else {
+		newNode.next = s.head
+		s.head = newNode
+	}
+	s.size++
+}
+func (s *myQueueLinkedList) dequeue() (string, error) {
+	if s.head == nil {
+		return "", fmt.Errorf("List is empty")
+	}
+	var prev *node
+	current := s.head
+	for current.next != nil {
+		prev = current
+		current = current.next
+	}
+	var data string
+	if prev != nil {
+		data = prev.next.data
+		prev.next = nil
+	} else {
+		data = s.head.data
+		s.head = nil
+	}
+	s.size--
+	return data, nil
+}
+func (s *myQueueLinkedList) iterateList() {
+	for node := s.head; node != nil; node = node.next {
+		fmt.Println(node.data)
+	}
+}
+
+func newLinkedList() *myQueueLinkedList {
+	return &myQueueLinkedList{}
 }
 func main() {
-	q := make(queue, 0)
-	q.enqueue("1")
-	q.enqueue("3")
-	q.enqueue("5")
-	fmt.Println("List")
-	fmt.Println(q)
+	queueList := newLinkedList()
+	queueList.enqueue("1")
+	queueList.enqueue("3")
+	queueList.enqueue("5")
+	queueList.iterateList()
 
-	q.dequeue()
-	q.dequeue()
-	fmt.Println("List")
-	fmt.Println(q)
+	r, _ := queueList.dequeue()
+	fmt.Println("Dequeue ", r)
+	r1, _ := queueList.dequeue()
+	fmt.Println("Dequeue ", r1)
+	queueList.iterateList()
 }
